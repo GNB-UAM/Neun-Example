@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include<vector>
 #include<string>
 #include <DifferentialNeuronWrapper.h>
-#include <ChemicalSynapsis.h>
+#include <ChemicalSynapse.h>
 #include <HindmarshRoseModel.h>
 #include <SystemWrapper.h>
 #include <RungeKutta4.h>
@@ -135,17 +135,17 @@ int main(int argc, char **argv) {
   h2.set(HR::y, -1.93688);
   h2.set(HR::z, 3.16568);
 
-  Synapsis::ConstructorArgs syn_args;
+  Synapse::ConstructorArgs syn_args;
   v_args = parse_file(yaml_file, "Chemical-HR1-HR2");
-  param_names = Synapsis::ParamNames();
+  param_names = Synapse::ParamNames();
 
-  for(int i=0; i < Synapsis::n_parameters; i++)
+  for(int i=0; i < Synapse::n_parameters; i++)
   {
     // std::cout << v_args[param_names[i]] << " " << param_names[i] << endl;
     syn_args.params[i] = v_args[param_names[i]];
   }
-  // Initialize a synapsis between the neurons
-  Synapsis s(h1, HR::x, h2, HR::x, syn_args, 1);
+  // Initialize a synapse between the neurons
+  Synapse s(h1, HR::x, h2, HR::x, syn_args, 1);
   
 
   // Set the parameter values
@@ -159,15 +159,15 @@ int main(int argc, char **argv) {
   args.params[Neuron::xr] = -1.6;
   args.params[Neuron::vh] = 1;
 
-  Synapsis::ConstructorArgs syn_args;
-  syn_args.params[Synapsis::gfast] = 0.015;
-  syn_args.params[Synapsis::Esyn] = -75;
-  syn_args.params[Synapsis::sfast] = 0.2;
-  syn_args.params[Synapsis::Vfast] = -50;
-  syn_args.params[Synapsis::gslow] = 0.025; //When 0, use only fast
-  syn_args.params[Synapsis::k1] = 1;
-  syn_args.params[Synapsis::k2] = 0.03;
-  syn_args.params[Synapsis::sslow] = 1;*/
+  Synapse::ConstructorArgs syn_args;
+  syn_args.params[Synapse::gfast] = 0.015;
+  syn_args.params[Synapse::Esyn] = -75;
+  syn_args.params[Synapse::sfast] = 0.2;
+  syn_args.params[Synapse::Vfast] = -50;
+  syn_args.params[Synapse::gslow] = 0.025; //When 0, use only fast
+  syn_args.params[Synapse::k1] = 1;
+  syn_args.params[Synapse::k2] = 0.03;
+  syn_args.params[Synapse::sslow] = 1;*/
 
 
   // // Set initial value of V in neuron n1
@@ -209,13 +209,13 @@ int main(int argc, char **argv) {
         s.step(step, h1.get(HR::x), h2.get(HR::x));
 
         // Provide an external current input to both neurons
-        h2.add_synaptic_input(s.get(Synapsis::i));
+        h2.add_synaptic_input(s.get(Synapse::i));
 
         h1.step(step);
         h2.step(step);
 
         double h1_val = h1.get(HR::x);
-        double syn_val = s.get(Synapsis::ifast);
+        double syn_val = s.get(Synapse::ifast);
 
         // store
         times.push_back(time);
@@ -231,9 +231,9 @@ int main(int argc, char **argv) {
         out << time << " "
             << h1.get(HR::x) << " "
             << h2.get(HR::x) << " "
-            << s.get(Synapsis::i) << " "
-            << s.get(Synapsis::ifast) << " "
-            << s.get(Synapsis::islow)
+            << s.get(Synapse::i) << " "
+            << s.get(Synapse::ifast) << " "
+            << s.get(Synapse::islow)
             << "\n";
     }
 

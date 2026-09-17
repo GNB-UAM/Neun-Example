@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include<vector>
 #include<string>
 #include <DifferentialNeuronWrapper.h>
-#include <ChemicalSynapsis.h>
+#include <ChemicalSynapse.h>
 #include <HindmarshRoseModel.h>
 #include <SystemWrapper.h>
 #include <RungeKutta4.h>

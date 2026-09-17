@@ -1,6 +1,7 @@
 /*************************************************************
 
-Copyright (c) 2025, Alicia Garrido Peña <alicia.garrido@uam.es>
+Copyright (c) 2006, Fernando Herrero Carrón
+Copyright (c) 2020, Angel Lareo <angel.lareo@gmail.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *************************************************************/
 
 #include <DifferentialNeuronWrapper.h>
-#include <ChemicalSynapsis.h>
+#include <ElectricalSynapse.h>
 #include <HodgkinHuxleyModel.h>
 #include <SystemWrapper.h>
 #include <RungeKutta4.h>
@@ -40,8 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 typedef RungeKutta4 Integrator;
 typedef DifferentialNeuronWrapper<SystemWrapper<HodgkinHuxleyModel<double>>, Integrator> HH;
-typedef ChemicalSynapsis<HH, HH, Integrator, double> Synapsis;
-// typedef ChemicalSynapsisModel<double> SynapsisModel;
+typedef ElectricalSynapse<HH, HH> Synapse;
 
 int main(int argc, char **argv) {
   // Struct to initialize neuron model parameters
@@ -56,52 +56,32 @@ int main(int argc, char **argv) {
   args.params[HH::gk] = 36 * 7.854e-3;
   args.params[HH::gl] = 0.3 * 7.854e-3;
 
-
-  Synapsis::ConstructorArgs syn_args;
-  syn_args.params[Synapsis::gfast] = 0.015;
-  syn_args.params[Synapsis::Esyn] = -75;
-  syn_args.params[Synapsis::sfast] = 0.2;
-  syn_args.params[Synapsis::Vfast] = -50;
-  syn_args.params[Synapsis::gslow] = 0.025; //When 0, use only fast
-  syn_args.params[Synapsis::k1] = 1;
-  syn_args.params[Synapsis::k2] = 0.03;
-  syn_args.params[Synapsis::sslow] = 1;
-
-
   // Initialize neuron models
   HH h1(args), h2(args);
 
   // Set initial value of V in neuron n1
   h1.set(HH::v, -75);
 
+  // Initialize a synapse between the neurons
+  Synapse s(h1, HH::v, h2, HH::v, -0.002, -0.002);
+
   // Set the integration step
-  const double step = 0.01;
-
-  // Initialize a synapsis between the neurons
-  Synapsis s(h1, HH::v, h2, HH::v, syn_args, 1);
-
+  const double step = 0.001;
 
   // Perform the simulation
   double simulation_time = 1000;
-  std::cout << "Time" << " " << "Vpre" << " " << "Vpost" 
-              << " " << "i" << " " << "ifast" << " " << "islow"
-              << std::endl;
-
   for (double time = 0; time < simulation_time; time += step) {
-    s.step(step, h1.get(HH::v), h2.get(HH::v));
+    s.step(step);
 
     // Provide an external current input to both neurons
     h1.add_synaptic_input(0.5);
     h2.add_synaptic_input(0.5);
 
-    h2.add_synaptic_input(s.get(Synapsis::i));
-
     h1.step(step);
     h2.step(step);
 
     std::cout << time << " " << h1.get(HH::v) << " " << h2.get(HH::v) 
-              << " " << s.get(Synapsis::i)<< " " << s.get(Synapsis::ifast) << " " << s.get(Synapsis::islow)
-              << std::endl;
+              << " " << s.get(Synapse::i1) << std::endl;
   }
 
   return 0;
