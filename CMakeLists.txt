@@ -15,6 +15,8 @@ add_executable(HR HR.cpp)
 add_executable(basic basic.cpp)
 add_executable(synapse synapse.cpp)
 add_executable(chemicalSynapse chemicalSynapse.cpp)
+add_executable(linskerSynapse linskerSynapse.cpp)
+add_executable(STDPSynapse STDPSynapse.cpp)
 
 # Linking equivalent to LDLIBS = -lyaml-cpp
 # target_link_libraries(HR
